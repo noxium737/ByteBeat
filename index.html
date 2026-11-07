@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bytebeat Studio — noxium737</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        min-height: 100vh;
+        background: radial-gradient(circle at 50% 0%, #1a1a2e 0%, #0a0a0f 70%);
+        font-family: 'Segoe UI', Arial, sans-serif;
+        color: #e0e0e0;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+    h1 {
+        font-size: 30px;
+        background: linear-gradient(90deg, #ff4d6d, #ffb347, #64c8ff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: 1px;
+        text-align: center;
+    }
+
+    .subtitle {
+        font-size: 13px;
+        color: #777;
+        margin-top: -12px;
+        margin-bottom: 8px;
+        text-align: center;
+    }
+
+    .panel {
+        width: 100%;
+        max-width: 760px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 16px;
+        padding: 22px;
+        backdrop-filter: blur(8px);
+    }
+
+    .panel h2 {
+        font-size: 15px;
+        color: #ffb347;
+        margin-bottom: 14px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    textarea {
+        width: 100%;
+        min-height: 90px;
+        background: #0d0d14;
+        color: #7dffb3;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px;
+        padding: 14px;
+        font-family: 'Consolas', 'Courier New', monospace;
+        font-size: 14px;
+        resize: vertical;
+        outline: none;
+        transition: border 0.2s;
+    }
+    textarea:focus { border-color: #64c8ff; }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+        align-items: center;
+    }
+
+    button {
+        background: rgba(255,255,255,0.08);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 10px;
+        padding: 11px 20px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    button:hover { background: rgba(255,255,255,0.16); transform: translateY(-2px); }
+    button:active { transform: scale(0.97); }
+
+    .btn-play { background: rgba(125,255,179,0.15); border-color: rgba(125,255,179,0.4); }
+    .btn-play:hover { background: rgba(125,255,179,0.25); }
+    .btn-stop { background: rgba(255,77,109,0.15); border-color: rgba(255,77,109,0.4); }
+    .btn-stop:hover { background: rgba(255,77,109,0.25); }
+    .btn-conv { background: rgba(100,200,255,0.15); border-color: rgba(100,200,255,0.4); }
+    .btn-conv:hover { background: rgba(100,200,255,0.25); }
+
+    label {
+        font-size: 13px;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    input[type="range"] { accent-color: #64c8ff; }
+
+    .file-area {
+        border: 2px dashed rgba(255,255,255,0.15);
+        border-radius: 12px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 14px;
+        color: #888;
+    }
+    .file-area:hover, .file-area.drag {
+        border-color: #64c8ff;
+        background: rgba(100,200,255,0.05);
+        color: #64c8ff;
+    }
+
+    .status {
+        font-size: 13px;
+        color: #7dffb3;
+        margin-top: 12px;
+        min-height: 18px;
+    }
+    .status.error { color: #ff4d6d; }
+
+    .out {
+        display: none;
+        margin-top: 14px;
+    }
+    .out.visible { display: block; }
+
+    .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+    .tab {
+        padding: 7px 16px;
+        font-size: 13px;
+        border-radius: 8px;
+        cursor: pointer;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: #999;
+        transition: all 0.2s;
+    }
+    .tab.active { background: rgba(100,200,255,0.2); border-color: #64c8ff; color: #fff; }
+
+    canvas {
+        width: 100%;
+        height: 70px;
+        margin-top: 14px;
+        border-radius: 10px;
+        background: #0d0d14;
+        border: 1px solid rgba(255,255,255,0.08);
+        display: block;
+    }
+
+    .footer {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #555;
+    }
+
+    .hint { font-size: 12px; color: #666; margin-top: 8px; line-height: 1.6; }
+    .hint code { color: #7dffb3; background: rgba(125,255,179,0.08); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+    <h1>Bytebeat Studio</h1>
+    <p class="subtitle">Плеер байтбита и конвертер аудио → bytebeat / floatbeat</p>
+
+    <!-- ПЛЕЕР -->
+    <div class="panel">
+        <h2>▶ Плеер байтбита</h2>
+        <textarea id="code" spellcheck="false">t*(t>>5|t>>8)&(3+(3&t>>8))>>(t>>16)</textarea>
+        <div class="row">
+            <button class="btn-play" id="playBtn">▶ Играть</button>
+            <button class="btn-stop" id="stopBtn">■ Стоп</button>
+            <label>Скорость:
+                <input type="range" id="speed" min="4000" max="48000" step="1000" value="8000">
+                <span id="speedVal">8000</span> Hz
+            </label>
+            <label>Режим:
+                <select id="mode" style="background:#0d0d14;color:#7dffb3;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:8px;font-family:monospace;">
+                    <option value="bytebeat">bytebeat (0–255)</option>
+                    <option value="floatbeat">floatbeat (−1…1)</option>
+                </select>
+            </label>
+        </div>
+        <canvas id="wave"></canvas>
+        <div class="hint">
+            Примеры: <code>t*(t>>5|t>>8)&(3+(3&t>>8))>>(t>>16)</code> ·
+            <code>(t>>4|t>>5)*t&255</code> ·
+            <code>sin(t/100)*127+128</code> (floatbeat)
+        </div>
+    </div>
+
+    <!-- КОНВЕРТЕР -->
+    <div class="panel">
+        <h2>🔄 Конвертер аудио → bytebeat / floatbeat</h2>
+        <div class="file-area" id="drop">
+            Перетащи сюда .mp3 / .wav / .ogg / .flac<br>
+            <span style="font-size:12px;opacity:0.6;">или нажми, чтобы выбрать файл</span>
+            <input type="file" id="file" accept="audio/*" hidden>
+        </div>
+        <div class="row">
+            <label>Битрейт семплов:
+                <input type="range" id="rate" min="4000" max="44100" step="1000" value="8000">
+                <span id="rateVal">8000</span> Hz
+            </label>
+            <label>Длительность:
+                <input type="range" id="dur" min="1" max="30" step="1" value="8">
+                <span id="durVal">8</span> с
+            </label>
+        </div>
+        <div class="status" id="status"></div>
+        <div class="out" id="out">
+            <div class="tabs">
+                <div class="tab active" data-tab="byte">bytebeat</div>
+                <div class="tab" data-tab="float">floatbeat</div>
+                <div class="tab" data-tab="b64">base64 (WAV)</div>
+            </div>
+            <textarea id="result" spellcheck="false" readonly style="min-height:140px;"></textarea>
+            <div class="row">
+                <button class="btn-conv" id="copyBtn">📋 Скопировать</button>
+                <button class="btn-play" id="playResultBtn">▶ Играть результат</button>
+            </div>
+            <div class="hint" id="outHint"></div>
+        </div>
+    </div>
+
+    <p class="footer">© noxium737 · Bytebeat Studio</p>
+
+<script>
+// ============================================================
+//  ПЛЕЕР БАЙТБИТА (Web Audio, ScriptProcessor)
+// ============================================================
+let ctx, node, playing = false;
+let t = 0;
+let userFn = null;
+const codeEl   = document.getElementById('code');
+const playBtn  = document.getElementById('playBtn');
+const stopBtn  = document.getElementById('stopBtn');
+const speedEl  = document.getElementById('speed');
+const speedVal = document.getElementById('speedVal');
+const modeEl   = document.getElementById('mode');
+const canvas   = document.getElementById('wave');
+const cctx     = canvas.getContext('2d');
+
+speedEl.oninput = () => speedVal.textContent = speedEl.value;
+
+function compile(src, floatMode) {
+    // Пользовательская функция: t → sample
+    const f = new Function('t', 'sin', 'cos', 'PI', `
+        try { return (${src}); } catch(e) { return 0; }
+    `);
+    return (tt) => {
+        let v = f(tt, Math.sin, Math.cos, Math.PI);
+        if (floatMode) {
+            // floatbeat: ожидаем -1..1
+            v = Math.max(-1, Math.min(1, v || 0));
+            return (v + 1) * 127.5; // → 0..255
+        } else {
+            // bytebeat: 0..255
+            return (v | 0) & 255;
+        }
+    };
+}
+
+function drawWave(buf) {
+    const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+    const h = canvas.height = canvas.clientHeight * devicePixelRatio;
+    cctx.clearRect(0,0,w,h);
+    cctx.fillStyle = '#0d0d14';
+    cctx.fillRect(0,0,w,h);
+    cctx.strokeStyle = '#7dffb3';
+    cctx.lineWidth = devicePixelRatio;
+    cctx.beginPath();
+    const step = Math.max(1, Math.floor(buf.length / w));
+    for (let x = 0; x < w; x++) {
+        const i = x * step;
+        const v = buf[i] || 0;
+        const y = h - (v / 255) * h;
+        if (x === 0) cctx.moveTo(x, y); else cctx.lineTo(x, y);
+    }
+    cctx.stroke();
+}
+
+function startPlay(fn) {
+    if (playing) stopPlay();
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const sampleRate = ctx.sampleRate;
+    const bufferSize = 4096;
+    node = ctx.createScriptProcessor(bufferSize, 0, 1);
+    let localT = t;
+
+    node.onaudioprocess = (e) => {
+        const out = e.outputBuffer.getChannelData(0);
+        const speed = +speedEl.value;
+        const inc = speed / sampleRate;
+        const buf = new Uint8Array(out.length);
+        for (let i = 0; i < out.length; i++) {
+            const v = fn(Math.floor(localT));
+            buf[i] = v;
+            out[i] = (v - 128) / 128;
+            localT += inc;
+        }
+        drawWave(buf);
+    };
+
+    node.connect(ctx.destination);
+    playing = true;
+    playBtn.textContent = '⏸ Пауза';
+    userFn = fn;
+}
+
+function stopPlay() {
+    if (node) { node.disconnect(); node = null; }
+    if (ctx)  { ctx.close(); ctx = null; }
+    playing = false;
+    playBtn.textContent = '▶ Играть';
+}
+
+playBtn.onclick = () => {
+    if (playing) { stopPlay(); return; }
+    const floatMode = modeEl.value === 'floatbeat';
+    const fn = compile(codeEl.value, floatMode);
+    startPlay(fn);
+};
+
+stopBtn.onclick = () => { t = 0; stopPlay(); };
+
+// ============================================================
+//  КОНВЕРТЕР АУДИО → BYTEBEAT / FLOATBEAT
+// ============================================================
+const drop    = document.getElementById('drop');
+const fileIn  = document.getElementById('file');
+const status  = document.getElementById('status');
+const outBox  = document.getElementById('out');
+const result  = document.getElementById('result');
+const rateEl  = document.getElementById('rate');
+const rateVal = document.getElementById('rateVal');
+const durEl   = document.getElementById('dur');
+const durVal  = document.getElementById('durVal');
+const outHint = document.getElementById('outHint');
+const copyBtn = document.getElementById('copyBtn');
+const playRes = document.getElementById('playResultBtn');
+
+let converted = { byte: '', float: '', b64: '', rawData: null, rate: 8000 };
+
+rateEl.oninput = () => rateVal.textContent = rateEl.value;
+durEl.oninput  = () => durVal.textContent  = durEl.value;
+
+drop.onclick = () => fileIn.click();
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add('drag'); };
+drop.ondragleave = () => drop.classList.remove('drag');
+drop.ondrop = (e) => {
+    e.preventDefault(); drop.classList.remove('drag');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+};
+fileIn.onchange = () => { if (fileIn.files[0]) handleFile(fileIn.files[0]); };
+
+// Переключение вкладок
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => {
+        document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+        tab.classList.add('active');
+        showTab(tab.dataset.tab);
+    };
+});
+
+function showTab(name) {
+    if (name === 'byte') {
+        result.value = converted.byte;
+        outHint.innerHTML = 'Это bytebeat-код. Вставь его в плеер выше (режим <code>bytebeat</code>) и нажми «Играть».';
+    } else if (name === 'float') {
+        result.value = converted.float;
+        outHint.innerHTML = 'Это floatbeat-код (значения −1…1). Вставь в плеер выше (режим <code>floatbeat</code>).';
+    } else {
+        result.value = converted.b64;
+        outHint.innerHTML = 'WAV-файл в base64. Можно вставить в <code>&lt;audio src="data:audio/wav;base64,..."&gt;</code>.';
+    }
+}
+
+async function handleFile(file) {
+    status.className = 'status';
+    status.textContent = '⏳ Декодирую файл…';
+    outBox.classList.remove('visible');
+
+    try {
+        const arrayBuf = await file.arrayBuffer();
+        const tmpCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const audioBuf = await tmpCtx.decodeAudioData(arrayBuf);
+        tmpCtx.close();
+
+        const targetRate = +rateEl.value;
+        const targetDur  = +durEl.value;
+
+        // Моно-микс
+        const ch = audioBuf.numberOfChannels;
+        const len = Math.min(audioBuf.length, Math.floor(audioBuf.sampleRate * targetDur));
+        const srcData = audioBuf.getChannelData(0);
+        let mono = new Float32Array(len);
+        for (let i = 0; i < len; i++) {
+            let sum = 0;
+            for (let c = 0; c < ch; c++) sum += audioBuf.getChannelData(c)[i];
+            mono[i] = sum / ch;
+        }
+
+        // Ресемплинг простым nearest-neighbor (для скорости)
+        const outLen = Math.floor(len * targetRate / audioBuf.sampleRate);
+        const samples = new Uint8Array(outLen);
+        for (let i = 0; i < outLen; i++) {
+            const srcIdx = Math.floor(i * audioBuf.sampleRate / targetRate);
+            const s = mono[srcIdx] || 0;
+            samples[i] = Math.max(0, Math.min(255, Math.round((s * 0.5 + 0.5) * 255)));
+        }
+
+        // ===== Генерация bytebeat-кода =====
+        // Используем lookup-таблицу (это честный "байтбит-совместимый" код)
+        const chunkSize = 500; // длинные массивы бьём по кускам чтобы не рвать строку
+        let byteCode = buildLookupCode(samples, false);
+        let floatCode = buildLookupCode(samples, true);
+
+        // ===== Генерация WAV для base64 =====
+        const wavBlob = encodeWAV(samples, targetRate);
+        const b64 = await blobToBase64(wavBlob);
+
+        converted = { byte: byteCode, float: floatCode, b64: b64, rawData: samples, rate: targetRate };
+        status.textContent = `✅ Готово: ${samples.length} семплов @ ${targetRate} Hz (${targetDur} с)`;
+        outBox.classList.add('visible');
+        showTab('byte');
+
+    } catch (err) {
+        console.error(err);
+        status.className = 'status error';
+        status.textContent = '❌ Не удалось декодировать файл: ' + err.message;
+    }
+}
+
+// Строим bytebeat-код как lookup-таблицу:
+// D=[...]; D[t%D.length]
+function buildLookupCode(samples, floatMode) {
+    // Ограничим длину чтобы код не был бесконечным
+    const maxSamples = 8000;
+    const len = Math.min(samples.length, maxSamples);
+    const arr = [];
+    for (let i = 0; i < len; i++) {
+        if (floatMode) {
+            const v = (samples[i] - 128) / 128;
+            arr.push(+v.toFixed(3));
+        } else {
+            arr.push(samples[i]);
+        }
+    }
+    const header = floatMode ? 'D=[' : 'D=[';
+    return `D=[${arr.join(',')}];D[t%D.length]`;
+}
+
+// WAV-энкодер (PCM 8-bit mono)
+function encodeWAV(samples, rate) {
+    const buffer = new ArrayBuffer(44 + samples.length);
+    const view = new DataView(buffer);
+    const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+
+    writeStr(0, 'RIFF');
+    view.setUint32(4, 36 + samples.length, true);
+    writeStr(8, 'WAVE');
+    writeStr(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);          // PCM
+    view.setUint16(22, 1, true);          // mono
+    view.setUint32(24, rate, true);
+    view.setUint32(28, rate, true);       // byte rate
+    view.setUint16(32, 1, true);          // block align
+    view.setUint16(34, 8, true);          // bits
+    writeStr(36, 'data');
+    view.setUint32(40, samples.length, true);
+    for (let i = 0; i < samples.length; i++) view.setUint8(44 + i, samples[i]);
+
+    return new Blob([buffer], { type: 'audio/wav' });
+}
+
+function blobToBase64(blob) {
+    return new Promise((res) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(',')[1]);
+        r.readAsDataURL(blob);
+    });
+}
+
+copyBtn.onclick = async () => {
+    try {
+        await navigator.clipboard.writeText(result.value);
+        const old = copyBtn.textContent;
+        copyBtn.textContent = '✅ Скопировано!';
+        setTimeout(() => copyBtn.textContent = old, 1500);
+    } catch { status.textContent = 'Не удалось скопировать'; }
+};
+
+playRes.onclick = () => {
+    // Играем результат через плеер выше
+    codeEl.value = converted.byte;
+    modeEl.value = 'bytebeat';
+    stopPlay();
+    const fn = compile(codeEl.value, false);
+    startPlay(fn);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// Первичная отрисовка пустой волны
+drawWave(new Uint8Array(200).fill(128));
+</script>
+</body>
+</html>
