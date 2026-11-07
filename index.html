@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✦ Bytebeat Studio Pro ✦</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @keyframes darkBlueBorder {
+            0% { border-color: #0a1628; }
+            50% { border-color: #1a3a6a; }
+            100% { border-color: #0a1628; }
+        }
+
+        @keyframes darkBlueGlow {
+            0% { box-shadow: 0 0 20px rgba(10, 22, 40, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(26, 58, 106, 0.5); }
+            100% { box-shadow: 0 0 20px rgba(10, 22, 40, 0.3); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spectrumPulse {
+            0%, 100% { transform: scaleY(0.3); }
+            50% { transform: scaleY(1); }
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #060a12;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            font-weight: 300;
+        }
+
+        .app {
+            max-width: 860px;
+            width: 100%;
+            animation: fadeIn 0.6s ease;
+        }
+
+        /* Dashboard */
+        .dashboard {
+            background: #0a0f1a;
+            border: 2px solid #0a1628;
+            border-radius: 16px;
+            padding: 40px;
+            animation: darkBlueBorder 4s ease-in-out infinite, darkBlueGlow 4s ease-in-out infinite;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .dashboard h1 {
+            font-size: 38px;
+            font-weight: 300;
+            color: #ffffff;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .dashboard h1 span {
+            color: #3a7abd;
+        }
+
+        .dashboard .subtitle {
+            font-size: 16px;
+            font-weight: 300;
+            color: #8899bb;
+            margin-bottom: 6px;
+        }
+
+        .dashboard .description {
+            font-size: 14px;
+            color: #667799;
+            line-height: 1.7;
+            max-width: 500px;
+            margin: 10px auto;
+            font-weight: 300;
+        }
+
+        .dashboard .enter-btn {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #0a1628;
+            padding: 12px 36px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 300;
+            border-radius: 10px;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 18px;
+            letter-spacing: 1px;
+        }
+
+        .dashboard .enter-btn:hover {
+            background: #1a2a4a;
+            border-color: #2a4a7a;
+            transform: scale(1.02);
+        }
+
+        .dashboard .dev {
+            font-size: 12px;
+            color: #445566;
+            margin-top: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Converter */
+        .converter {
+            background: #0a0f1a;
+            border: 2px solid #0a1628;
+            border-radius: 16px;
+            padding: 30px;
+            animation: darkBlueBorder 4s ease-in-out infinite, darkBlueGlow 4s ease-in-out infinite;
+            display: none;
+        }
+
+        .converter.active {
+            display: block;
+            animation: fadeIn 0.5s ease, darkBlueBorder 4s ease-in-out infinite, darkBlueGlow 4s ease-in-out infinite;
+        }
+
+        .converter h2 {
+            font-size: 22px;
+            font-weight: 300;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .converter .sub {
+            text-align: center;
+            font-size: 13px;
+            color: #667799;
+            margin-bottom: 18px;
+            font-weight: 300;
+        }
+
+        label {
+            display: block;
+            font-weight: 300;
+            margin: 12px 0 5px;
+            color: #8899bb;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #060a12;
+            color: #ffffff;
+            border: 2px solid #0a1628;
+            border-radius: 8px;
+            font-family: inherit;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+            font-size: 14px;
+            font-weight: 300;
+            transition: 0.3s;
+        }
+
+        input:hover, select:hover {
+            background: #0a1525;
+            border-color: #1a3a6a;
+        }
+
+        /* Spectrum Visualizer */
+        .spectrum-container {
+            margin: 16px 0;
+            padding: 16px;
+            background: #060a12;
+            border-radius: 10px;
+            border: 1px solid #0a1628;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+        }
+
+        .spectrum-canvas-wrapper {
+            width: 100%;
+            height: 80px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 6px;
+        }
+
+        #spectrumCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .spectrum-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 10px;
+        }
+
+        .spectrum-controls button {
+            width: auto;
+            padding: 6px 18px;
+            background: transparent;
+            color: #8899bb;
+            border: 1px solid #0a1628;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 300;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 0;
+        }
+
+        .spectrum-controls button:hover {
+            background: #0a1525;
+            color: #ffffff;
+        }
+
+        .spectrum-controls .file-name {
+            font-size: 12px;
+            color: #667799;
+            font-weight: 300;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #0a1628;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+            font-weight: 300;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #0a1525;
+            border-color: #1a3a6a;
+            transform: scale(1.01);
+        }
+
+        button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .link-container {
+            margin-top: 16px;
+            padding: 16px;
+            background: #060a12;
+            border: 2px dashed #0a1628;
+            border-radius: 10px;
+            display: none;
+            word-break: break-all;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+        }
+
+        .link-container a {
+            color: #4a8ad8;
+            text-decoration: none;
+            font-weight: 300;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .link-container a:hover {
+            color: #6aaaf8;
+            text-decoration: underline;
+        }
+
+        #status {
+            padding: 8px;
+            text-align: center;
+            color: #8899bb;
+            font-size: 13px;
+            font-weight: 300;
+            min-height: 24px;
+        }
+
+        .back-btn {
+            background: transparent;
+            color: #667799;
+            border: 1px solid #0a1628;
+            padding: 6px 16px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 300;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            width: auto;
+            margin: 0 0 14px 0;
+            animation: darkBlueBorder 4s ease-in-out infinite;
+        }
+
+        .back-btn:hover {
+            background: #0a1525;
+            color: #ffffff;
+        }
+
+        .small-text {
+            font-size: 11px;
+            color: #445566;
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 300;
+        }
+
+        .dev-footer {
+            font-size: 11px;
+            color: #334455;
+            text-align: center;
+            margin-top: 14px;
+            letter-spacing: 0.5px;
+            font-weight: 300;
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #060a12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0a1628;
+            border-radius: 3px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+    <!-- Dashboard -->
+    <div class="dashboard" id="dashboard">
+        <h1>✦ Bytebeat <span>Studio</span></h1>
+        <div class="subtitle">High-Fidelity Audio Compiler</div>
+        <div class="description">
+            Transform your audio into crystal-clear bytebeat strings.<br>
+            Supports MP4, WAV, MP3, OGG and more.
+        </div>
+        <button class="enter-btn" onclick="showConverter()">Enter Studio</button>
+        <div class="dev">developed by Proxitim</div>
+    </div>
+
+    <!-- Converter -->
+    <div class="converter" id="converter">
+        <button class="back-btn" onclick="showDashboard()">← Dashboard</button>
+        
+        <h2>✦ Bytebeat Converter</h2>
+        <div class="sub">Convert audio to a Dollchan bytebeat link</div>
+
+        <label>Select Audio / Video File</label>
+        <input type="file" id="mediaFile" accept="video/mp4,audio/*">
+
+        <label>Sample Rate</label>
+        <select id="sampleRate">
+            <option value="11025">11025 Hz (Lo-Fi)</option>
+            <option value="22050">22050 Hz (Medium)</option>
+            <option value="32000" selected>32000 Hz (Video Match)</option>
+            <option value="44100">44100 Hz (CD Master)</option>
+        </select>
+
+        <!-- Spectrum Visualizer -->
+        <div class="spectrum-container" id="spectrumContainer" style="display:none;">
+            <div class="spectrum-canvas-wrapper">
+                <canvas id="spectrumCanvas"></canvas>
+            </div>
+            <div class="spectrum-controls">
+                <button onclick="toggleSpectrumPlay()" id="playBtn">▶ Play</button>
+                <span class="file-name" id="spectrumFileName">No file loaded</span>
+            </div>
+        </div>
+
+        <button onclick="generateAccurateLink()">Compile Bytebeat Link</button>
+
+        <div id="status">Ready to compile</div>
+        <div id="linkBox" class="link-container"></div>
+
+        <div class="dev-footer">developed by Proxitim</div>
+    </div>
+</div>
+
+<script>
+    // ===== Dashboard / Converter =====
+    function showConverter() {
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('converter').classList.add('active');
+    }
+
+    function showDashboard() {
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('converter').classList.remove('active');
+        document.getElementById('linkBox').style.display = 'none';
+        document.getElementById('status').innerText = 'Ready to compile';
+        stopSpectrum();
+    }
+
+    // ===== Spectrum Visualizer =====
+    let audioContext = null;
+    let analyser = null;
+    let dataArray = null;
+    let source = null;
+    let isPlaying = false;
+    let animationId = null;
+    let audioBuffer = null;
+    let currentFile = null;
+
+    const canvas = document.getElementById('spectrumCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+        const wrapper = canvas.parentElement;
+        canvas.width = wrapper.clientWidth;
+        canvas.height = wrapper.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    function drawSpectrum() {
+        if (!analyser) return;
+
+        analyser.getByteFrequencyData(dataArray);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const barWidth = (canvas.width / dataArray.length) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < dataArray.length; i++) {
+            const value = dataArray[i];
+            const percent = value / 255;
+            const height = canvas.height * percent * 0.9;
+
+            const gradient = ctx.createLinearGradient(0, canvas.height - height, 0, canvas.height);
+            gradient.addColorStop(0, '#1a3a6a');
+            gradient.addColorStop(0.5, '#2a5a8a');
+            gradient.addColorStop(1, '#0a1a3a');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(x, canvas.height - height, barWidth - 1, height);
+
+            x += barWidth;
+        }
+
+        animationId = requestAnimationFrame(drawSpectrum);
+    }
+
+    function toggleSpectrumPlay() {
+        if (isPlaying) {
+            stopSpectrum();
+        } else {
+            playSpectrum();
+        }
+    }
+
+    function playSpectrum() {
+        if (!audioBuffer) return;
+
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        if (audioContext.state === 'suspended') {
+            audioContext.resume();
+        }
+
+        // Create source
+        source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+
+        analyser = audioContext.createAnalyser();
+        analyser.fftSize = 128;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+        source.connect(analyser);
+        analyser.connect(audioContext.destination);
+
+        source.onended = () => {
+            stopSpectrum();
+        };
+
+        source.start();
+        isPlaying = true;
+        document.getElementById('playBtn').textContent = '⏹ Stop';
+
+        resizeCanvas();
+        drawSpectrum();
+    }
+
+    function stopSpectrum() {
+        if (source) {
+            try { source.stop(); } catch(e) {}
+            source = null;
+        }
+        if (animationId) {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+        }
+        isPlaying = false;
+        document.getElementById('playBtn').textContent = '▶ Play';
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // File input handler with spectrum
+    document.getElementById('mediaFile').addEventListener('change', async function(e) {
+        const file = e.target.files[0];
+        const spectrumContainer = document.getElementById('spectrumContainer');
+        const fileNameDisplay = document.getElementById('spectrumFileName');
+
+        if (!file) {
+            spectrumContainer.style.display = 'none';
+            return;
+        }
+
+        spectrumContainer.style.display = 'block';
+        fileNameDisplay.textContent = file.name;
+        currentFile = file;
+
+        try {
+            // Decode audio for spectrum
+            const arrayBuffer = await file.arrayBuffer();
+            const tempCtx = new (window.AudioContext || window.webkitAudioContext)();
+            audioBuffer = await tempCtx.decodeAudioData(arrayBuffer);
+            
+            // Create a copy for playback
+            const offlineCtx = new OfflineAudioContext(
+                audioBuffer.numberOfChannels,
+                audioBuffer.length,
+                audioBuffer.sampleRate
+            );
+            const sourceNode = offlineCtx.createBufferSource();
+            sourceNode.buffer = audioBuffer;
+            sourceNode.connect(offlineCtx.destination);
+            sourceNode.start();
+            audioBuffer = await offlineCtx.startRendering();
+
+            resizeCanvas();
+            // Draw initial empty spectrum
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+        } catch (err) {
+            console.error('Error loading audio for spectrum:', err);
+        }
+    });
+
+    // ===== Main Compile Function =====
+    async function generateAccurateLink() {
+        const fileInput = document.getElementById('mediaFile');
+        const rateSelect = document.getElementById('sampleRate');
+        const status = document.getElementById('status');
+        const linkBox = document.getElementById('linkBox');
+
+        if (!fileInput.files.length) {
+            status.innerText = 'Error: Please choose a file first.';
+            return;
+        }
+
+        // Stop spectrum if playing
+        if (isPlaying) stopSpectrum();
+
+        status.innerText = 'Extracting sound wave data...';
+        linkBox.style.display = 'none';
+
+        try {
+            const sampleRate = parseInt(rateSelect.value);
+            const arrayBuffer = await fileInput.files[0].arrayBuffer();
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+
+            const offlineCtx = new OfflineAudioContext(1, Math.floor(audioBuffer.duration * sampleRate), sampleRate);
+            const source = offlineCtx.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(offlineCtx.destination);
+            source.start();
+
+            const rendered = await offlineCtx.startRendering();
+            const floats = rendered.getChannelData(0);
+
+            status.innerText = 'Encoding PCM stream...';
+
+            let hexString = "";
+            for (let i = 0; i < floats.length; i++) {
+                let b = Math.floor((floats[i] + 1.0) * 127.5);
+                b = Math.max(0, Math.min(255, b));
+                let hex = b.toString(16).padStart(2, '0');
+                hexString += "\\x" + hex;
+            }
+
+            status.innerText = 'Packing Dollchan payload...';
+
+            const bytebeatFormula = `globalThis.A||(A="${hexString}"),A.charCodeAt(t%${floats.length})`;
+
+            const configObject = {
+                formula: bytebeatFormula,
+                sampleRate: sampleRate,
+                mode: "Bytebeat"
+            };
+
+            const jsonStr = JSON.stringify(configObject);
+            const deflated = pako.deflateRaw(jsonStr);
+
+            let binaryString = "";
+            for (let i = 0; i < deflated.length; i++) {
+                binaryString += String.fromCharCode(deflated[i]);
+            }
+            const base64Hash = btoa(binaryString);
+
+            const finalUrl = `https://dollchan.net/bytebeat/#v3b64${base64Hash}`;
+
+            status.innerText = 'Success! Track compiled.';
+            linkBox.style.display = 'block';
+            linkBox.innerHTML = `
+                <a href="${finalUrl}" target="_blank">Open in Dollchan</a>
+                <div class="small-text" style="margin-top:6px;">Click to listen to your audio</div>
+            `;
+
+        } catch (err) {
+            console.error(err);
+            status.innerText = 'Error decoding audio. Keep your input clip short!';
+        }
+    }
+</script>
+</body>
+</html>
